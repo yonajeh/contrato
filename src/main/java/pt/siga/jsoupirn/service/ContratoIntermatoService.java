@@ -2,6 +2,7 @@ package pt.siga.jsoupirn.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
@@ -19,9 +20,13 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
     private static Map<Long,Long> SUNS_MESSAGES = new HashMap<>();
 
     Logger logger = LoggerFactory.getLogger(ContratoIntermatoService.class);
+    @Value("${debugMode}")
+    private Boolean debugMode;
     @Override
     public void onUpdateReceived(Update update) {
-        logger.info(update.toString());
+        if (debugMode){
+            logger.info(update.toString());
+        }
         sendBotMessage(update.getMessage().getChatId(), "ok tssna");
         SUNS_MESSAGES.put(update.getMessage().getFrom().getId(), update.getMessage().getChatId());
     }
