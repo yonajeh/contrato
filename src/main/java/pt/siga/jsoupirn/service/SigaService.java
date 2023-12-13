@@ -24,7 +24,7 @@ import java.util.Objects;
 
 @Service
 public class SigaService {
-    private int SLOWNESS = 7;
+    private int SLOWNESS = 12;
 
     private static final String BASE_URL = "https://siga.marcacaodeatendimento.pt";
     private final Logger logger = LoggerFactory.getLogger(SigaService.class);
@@ -38,7 +38,7 @@ public class SigaService {
     ContratoIntermatoService telegram;
 
 
-    @Scheduled(fixedRate = 200000)
+    @Scheduled(fixedRate = 600000)
     public void go() throws MalformedURLException {
         if (debugMode){
             logger.info("start");
