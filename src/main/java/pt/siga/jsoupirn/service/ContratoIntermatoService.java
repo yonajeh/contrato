@@ -20,13 +20,10 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
     private static Map<Long,Long> SUNS_MESSAGES = new HashMap<>();
 
     Logger logger = LoggerFactory.getLogger(ContratoIntermatoService.class);
-    @Value("${debugMode}")
-    private Boolean debugMode;
+
     @Override
     public void onUpdateReceived(Update update) {
-        if (debugMode){
-            logger.info(update.toString());
-        }
+
         sendBotMessage(update.getMessage().getChatId(), "ok tssna");
         SUNS_MESSAGES.put(update.getMessage().getFrom().getId(), update.getMessage().getChatId());
     }
