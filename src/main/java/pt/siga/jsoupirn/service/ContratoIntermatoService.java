@@ -2,30 +2,40 @@ package pt.siga.jsoupirn.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
 public class ContratoIntermatoService extends TelegramLongPollingBot {
-    private static Map<Long,Long> SUNS_MESSAGES = new HashMap<>();
 
     Logger logger = LoggerFactory.getLogger(ContratoIntermatoService.class);
+
+    private final UserRepository userRepository;
+
+    public ContratoIntermatoService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
 
     @Override
     public void onUpdateReceived(Update update) {
 
         sendBotMessage(update.getMessage().getChatId(), "ok tssna");
-        SUNS_MESSAGES.put(update.getMessage().getFrom().getId(), update.getMessage().getChatId());
+        User from = update.getMessage().getFrom();
+        userRepository.save(new UserInfo(
+                from.getId(),
+                from.getUserName(),
+                from.getFirstName(),
+                from.getLastName()
+                ).setLastMessageId(update.getMessage().getChatId()));
     }
 
     @Override
@@ -50,8 +60,8 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
     }
 
     public void sendBotMessage(String msj) {
-        SUNS_MESSAGES.values().forEach(id ->{
-            sendBotMessage(id, msj);
+        userRepository.findAll().forEach(user ->{
+            sendBotMessage(user.getLastMessageId(), msj);
         });
     }
 

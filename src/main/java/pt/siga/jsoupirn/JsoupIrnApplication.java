@@ -13,13 +13,7 @@ import pt.siga.jsoupirn.service.ContratoIntermatoService;
 public class JsoupIrnApplication {
 
     public static void main(String[] args) {
-        ContratoIntermatoService telegramBot = new ContratoIntermatoService();
-        try {
-            TelegramBotsApi botsApi = new TelegramBotsApi(DefaultBotSession.class);
-            botsApi.registerBot(telegramBot);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+
         SpringApplication.run(JsoupIrnApplication.class, args);
 
     }

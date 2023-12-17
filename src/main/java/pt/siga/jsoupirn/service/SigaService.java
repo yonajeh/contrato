@@ -1,6 +1,5 @@
 package pt.siga.jsoupirn.service;
 
-import jakarta.annotation.PostConstruct;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,6 +36,8 @@ public class SigaService {
 
     @Autowired
     ContratoIntermatoService telegram;
+
+
 
 
     @Scheduled(fixedRate = 600000)
@@ -113,7 +115,9 @@ public class SigaService {
                 try {
                     WebElement textAera = driver.findElement(By.cssSelector(".error-message h5"));
                     if (debugMode) {
-                        logger.info(String.format("%s says : %s", district.getLabel(), textAera.getText()));
+                        String districtMessage = String.format("%s says : %s", district.getLabel(), textAera.getText());
+                        logger.info(districtMessage);
+                        telegram.sendBotMessage(districtMessage);
                     }
                 } catch (Exception e) {
                     logger.warn(String.format("big warn about %s", district.getLabel()));
