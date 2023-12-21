@@ -18,24 +18,17 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
 
     Logger logger = LoggerFactory.getLogger(ContratoIntermatoService.class);
 
-    private final UserRepository userRepository;
 
-    public ContratoIntermatoService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    private static final HashMap<Long, Long> USERS = new HashMap<>();
 
     @Override
     public void onUpdateReceived(Update update) {
 
         sendBotMessage(update.getMessage().getChatId(), "ok tssna");
         User from = update.getMessage().getFrom();
-        userRepository.save(new UserInfo(
-                from.getId(),
-                from.getUserName(),
-                from.getFirstName(),
-                from.getLastName()
-                ).setLastMessageId(update.getMessage().getChatId()));
+
+        USERS.put(from.getId(), update.getMessage().getChatId());
+
     }
 
     @Override
@@ -60,8 +53,8 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
     }
 
     public void sendBotMessage(String msj) {
-        userRepository.findAll().forEach(user ->{
-            sendBotMessage(user.getLastMessageId(), msj);
+        USERS.values().forEach(user ->{
+            sendBotMessage(user, msj);
         });
     }
 

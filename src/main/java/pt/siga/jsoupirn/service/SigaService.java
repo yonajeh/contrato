@@ -40,7 +40,7 @@ public class SigaService {
 
 
 
-    @Scheduled(fixedRate = 600000)
+    @Scheduled(fixedRate = 900000)
     public void go() throws MalformedURLException {
         if (debugMode){
             logger.info("start");
