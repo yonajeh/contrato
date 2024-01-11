@@ -10,13 +10,20 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class ContratoIntermatoService extends TelegramLongPollingBot {
 
     Logger logger = LoggerFactory.getLogger(ContratoIntermatoService.class);
+    String fileName = "users.txt";
 
 
     private static final HashMap<Long, Long> USERS = new HashMap<>();
@@ -29,6 +36,40 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
 
         USERS.put(from.getId(), update.getMessage().getChatId());
 
+        writeToFile(update.getMessage().getChatId());
+
+    }
+
+    private void writeToFile(Long chatId) {
+        createFileIfNotExist();
+
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.newLine();
+            writer.write(String.valueOf(chatId));
+            logger.info("Content written to " + fileName);
+        } catch (Exception e) {
+            logger.error("cannot write into file.", e);
+        }
+    }
+
+    private void createFileIfNotExist() {
+
+        try {
+            // Get the Path object representing the file
+            Path filePath = Paths.get(fileName);
+
+            // Check if the file exists
+            if (!Files.exists(filePath)) {
+                // Create the file if it doesn't exist
+                Files.createFile(filePath);
+                System.out.println("File created: " + fileName);
+            } else {
+                System.out.println("File already exists: " + fileName);
+            }
+        } catch (Exception e) {
+            logger.error("cannot create file.", e);
+        }
     }
 
     @Override
@@ -53,9 +94,21 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
     }
 
     public void sendBotMessage(String msj) {
-        USERS.values().forEach(user ->{
-            sendBotMessage(user, msj);
-        });
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+
+            // Read and print each line from the file
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()){
+                    Long chatId = Long.valueOf(line);
+                    sendBotMessage(chatId, msj);
+                }
+
+            }
+        } catch (Exception e) {
+            logger.error("cannot read from file.", e);
+        }
     }
 
     /**

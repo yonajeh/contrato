@@ -21,6 +21,7 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class SigaService {
@@ -41,7 +42,15 @@ public class SigaService {
 
 
     @Scheduled(fixedRate = 900000)
-    public void go() throws MalformedURLException {
+    public void go()  {
+        try {
+            look();
+        } catch (Exception e) {
+            logger.error("somthing went not good, ", e);
+        }
+    }
+
+    private void look() throws Exception {
         if (debugMode){
             logger.info("start");
             telegram.sendBotMessage("bdina");
@@ -102,13 +111,64 @@ public class SigaService {
                 if (debugMode) {
                     logger.info(String.format("count of localities in [%s] is : [%d] ", district.getLabel(), localities.size()));
                 }
-                if (localities.size() > 1) {
-                    selectLocalidade.selectByValue("-1");
+                Select selectLocalAtendimento = new Select(driver.findElement(By.id("IdLocalAtendimento")));
+                List<SelectDto> localAtendimento = selectLocalAtendimento.getOptions().stream()
+                        .filter(Objects::nonNull)
+                        .map(o -> new SelectDto(o.getAttribute("value"), o.getText()))
+                        .filter(d -> StringUtils.hasText(d.getValue()))
+                        .toList();
+
+                Thread.sleep(50 * SLOWNESS);
+
+                if (localAtendimento.size() > 1) {
+
+
+                    localAtendimento.forEach(local -> {
+                        try{
+                            new Select(driver.findElement(By.id("IdLocalAtendimento")))
+                                    .selectByValue(local.getValue());
+
+                            try {
+                                Thread.sleep(100 * SLOWNESS);
+                            } catch (InterruptedException e) {}
+
+                            WebElement buttonNext2 = driver.findElement(By.className("set-date-button"));
+                            buttonNext2.click();
+                            try {
+                                lookOnPageAnBack(driver, district, local);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }catch (Exception ex){
+                            new Select(driver.findElement(By.id("IdLocalidade"))).selectByValue("-1");
+                            try {
+                                Thread.sleep(100 * SLOWNESS);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            logger.info("mix old and new way.");
+                        }
+
+
+                    });
+                    continue;
                 }
                 Thread.sleep(100 * SLOWNESS);
 
-                WebElement buttonNext2 = driver.findElement(By.className("set-date-button"));
-                buttonNext2.click();
+                try {
+                    WebElement buttonNext2 = driver.findElement(By.className("set-date-button"));
+                    buttonNext2.click();
+                }catch (Exception e){
+
+                    logger.error(
+                            String.format("something wrong with failure in %s",district.getLabel()),
+                            e
+                    );
+                    //new Select(driver.findElement(By.id("IdLocalidade"))).selectByValue("-1");
+
+                    continue;
+                }
 
                 Thread.sleep(200 * SLOWNESS);
 
@@ -143,8 +203,44 @@ public class SigaService {
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+
         } finally {
             driver.quit();
         }
+    }
+
+    private void lookOnPageAnBack(WebDriver driver, SelectDto district, SelectDto local) throws InterruptedException {
+        Thread.sleep(200 * SLOWNESS);
+
+        if (local == null ){
+            local = district;
+        }
+        final String localString = local.getLabel();
+        try {
+            WebElement textAera = driver.findElement(By.cssSelector(".error-message h5"));
+            if (debugMode) {
+                String districtMessage = String.format("%s - %s says : %s", district.getLabel(), localString, textAera.getText());
+                logger.info(districtMessage);
+                telegram.sendBotMessage(districtMessage);
+            }
+        } catch (Exception e) {
+            logger.warn(String.format("big warn about %s - %s", district.getLabel(), localString));
+            try {
+                List<WebElement> spanWithDates = driver.findElements(By.cssSelector(".schedule-list div.no_margin span"));
+                spanWithDates.forEach(el ->{
+                    String news = String.format("Schedule in %s - %s at %s", district.getLabel(), localString, el.getText());
+                    telegram.sendBotMessage(news);
+                    logger.warn(news);
+                });
+            } catch (Exception ex) {
+                logger.error("Whaaaat ? : " + ex.getMessage());
+            }
+            //
+        }
+        Thread.sleep(100 * SLOWNESS);
+
+
+        WebElement buttonBack = driver.findElement(By.cssSelector("#liVoltarButton a"));
+        buttonBack.click();
     }
 }
