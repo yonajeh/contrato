@@ -42,9 +42,22 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
 
     private void writeToFile(Long chatId) {
         createFileIfNotExist();
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
 
+            // Read and print each line from the file
+            while ((line = reader.readLine()) != null) {
+                if (!line.trim().isEmpty()){
+                    sb.append(line);
+                }
 
+            }
+        } catch (Exception e) {
+            logger.error("cannot read from file.", e);
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write(sb.toString());
             writer.newLine();
             writer.write(String.valueOf(chatId));
             logger.info("Content written to " + fileName);
