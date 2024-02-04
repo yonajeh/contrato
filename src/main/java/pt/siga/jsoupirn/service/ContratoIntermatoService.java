@@ -106,7 +106,8 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
         }
     }
 
-    public void sendBotMessage(String msj) {
+    public void sendBotMessage(Type type, String msj) {
+        msj = type.name() +" : "+ msj;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -115,7 +116,13 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()){
                     Long chatId = Long.valueOf(line);
-                    sendBotMessage(chatId, msj);
+                    if (Type.NATIONALITY.equals(type)){
+                        if (line.endsWith("212")){
+                            sendBotMessage(chatId, msj);
+                        }
+                    }else{
+                        sendBotMessage(chatId, msj);
+                    }
                 }
 
             }
@@ -133,4 +140,10 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
      *
      * For a description of the Bot API, see this page: https://core.telegram.org/bots/api
      */
+
+
+    enum Type{
+        NATIONALITY,
+        RESIDENCY
+    }
 }

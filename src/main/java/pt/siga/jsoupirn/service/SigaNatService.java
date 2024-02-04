@@ -11,24 +11,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import org.telegram.telegrambots.meta.api.objects.User;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 @Service
-public class SigaService {
+public class SigaNatService {
     private int SLOWNESS = 12;
 
     private static final String BASE_URL = "https://siga.marcacaodeatendimento.pt";
-    private final Logger logger = LoggerFactory.getLogger(SigaService.class);
+    private final Logger logger = LoggerFactory.getLogger(SigaNatService.class);
 
     @Value("${env}")
     private String env;
@@ -68,12 +64,16 @@ public class SigaService {
 
 
             Select selectCategoria = new Select(driver.findElement(By.id("IdCategoria")));
-            selectCategoria.selectByValue("22002");
+            selectCategoria.selectByValue("22061");
 
             Thread.sleep(300 * SLOWNESS);
 
             Select selectSubcategoria = new Select(driver.findElement(By.id("IdSubcategoria")));
-            selectSubcategoria.selectByValue("30825");
+            selectSubcategoria.selectByValue("22062");
+
+            Thread.sleep(150 * SLOWNESS);
+            Select motivo = new Select(driver.findElement(By.id("IdMotivo")));
+            motivo.selectByValue("22066");
 
             Thread.sleep(150 * SLOWNESS);
 
