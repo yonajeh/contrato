@@ -43,7 +43,7 @@ public class SigaService {
     public void look() throws Exception {
         if (debugMode){
             logger.info("start");
-            telegram.sendBotMessage(ContratoIntermatoService.Type.NATIONALITY,"bdina");
+            telegram.sendBotMessage(ContratoIntermatoService.Type.RESIDENCY,"bdina");
         }
 // Create a new instance of the Chrome driver
         WebDriver driver;
@@ -167,7 +167,7 @@ public class SigaService {
                     if (debugMode) {
                         String districtMessage = String.format("%s says : %s", district.getLabel(), textAera.getText());
                         logger.info(districtMessage);
-                        telegram.sendBotMessage(ContratoIntermatoService.Type.NATIONALITY,districtMessage);
+                        telegram.sendBotMessage(ContratoIntermatoService.Type.RESIDENCY,districtMessage);
                     }
                 } catch (Exception e) {
                     logger.warn(String.format("big warn about %s", district.getLabel()));
@@ -175,7 +175,7 @@ public class SigaService {
                         List<WebElement> spanWithDates = driver.findElements(By.cssSelector(".schedule-list div.no_margin span"));
                         spanWithDates.forEach(el ->{
                             String news = String.format("Schedule in %s at %s", district.getLabel(), el.getText());
-                            telegram.sendBotMessage(ContratoIntermatoService.Type.NATIONALITY,news);
+                            telegram.sendBotMessage(ContratoIntermatoService.Type.RESIDENCY,news);
                             logger.warn(news);
                         });
                     } catch (Exception ex) {
@@ -211,7 +211,7 @@ public class SigaService {
             if (debugMode) {
                 String districtMessage = String.format("%s - %s says : %s", district.getLabel(), localString, textAera.getText());
                 logger.info(districtMessage);
-                telegram.sendBotMessage(ContratoIntermatoService.Type.NATIONALITY,districtMessage);
+                telegram.sendBotMessage(ContratoIntermatoService.Type.RESIDENCY,districtMessage);
             }
         } catch (Exception e) {
             logger.warn(String.format("big warn about %s - %s", district.getLabel(), localString));
@@ -219,7 +219,7 @@ public class SigaService {
                 List<WebElement> spanWithDates = driver.findElements(By.cssSelector(".schedule-list div.no_margin span"));
                 spanWithDates.forEach(el ->{
                     String news = String.format("Schedule in %s - %s at %s", district.getLabel(), localString, el.getText());
-                    telegram.sendBotMessage(ContratoIntermatoService.Type.NATIONALITY,news);
+                    telegram.sendBotMessage(ContratoIntermatoService.Type.RESIDENCY,news);
                     logger.warn(news);
                 });
             } catch (Exception ex) {
