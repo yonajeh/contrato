@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class ContratoIntermatoService extends TelegramLongPollingBot {
@@ -42,14 +44,15 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
 
     private void writeToFile(Long chatId) {
         createFileIfNotExist();
-        StringBuilder sb = new StringBuilder();
+        Set<Long> ids = new HashSet<>();
+        ids.add(chatId);
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
             String line;
 
             // Read and print each line from the file
             while ((line = reader.readLine()) != null) {
                 if (!line.trim().isEmpty()){
-                    sb.append(line);
+                    ids.add(Long.valueOf(line));
                 }
 
             }
@@ -57,9 +60,10 @@ public class ContratoIntermatoService extends TelegramLongPollingBot {
             logger.error("cannot read from file.", e);
         }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            writer.write(sb.toString());
-            writer.newLine();
-            writer.write(String.valueOf(chatId));
+            for (Long id : ids) {
+                writer.write(String.valueOf(id));
+                writer.newLine();
+            }
             logger.info("Content written to " + fileName);
         } catch (Exception e) {
             logger.error("cannot write into file.", e);
