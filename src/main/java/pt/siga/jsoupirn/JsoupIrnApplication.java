@@ -26,7 +26,7 @@ public class JsoupIrnApplication {
 
     }
 
-    @Scheduled(fixedRate = 900000)
+    @Scheduled(fixedRate = 9600000)
     public void goN()  {
         try {
             sigaNatService.look();
@@ -35,7 +35,7 @@ public class JsoupIrnApplication {
         }
     }
 
-    @Scheduled(fixedRate = 800000)
+    @Scheduled(fixedRate = 600000)
     public void goR()  {
         try {
             sigaService.look();
